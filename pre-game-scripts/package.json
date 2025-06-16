@@ -1,0 +1,24 @@
+{
+  "name": "mc-pregame-gas",
+  "version": "1.0.0",
+  "description": "MC Pregame Google Apps Script project for room booking management",
+  "scripts": {
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "deploy": "clasp deploy",
+    "open": "clasp open-script",
+    "logs": "clasp tail-logs",
+    "version": "clasp version",
+    "watch": "clasp push --watch"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  },
+  "keywords": [
+    "google-apps-script",
+    "room-booking",
+    "calendar-management"
+  ],
+  "author": "MC Pregame Team",
+  "license": "MIT"
+}

@@ -1,0 +1,10 @@
+**/*
+!*.gs
+!*.js
+!*.html
+!appsscript.json
+.DS_Store
+node_modules/
+*.log
+.env
+.git/ 
