@@ -1,42 +1,12 @@
-const DRAFT_CALENDAR_IDS = "RoomInfo";
-const MAIN_CALENDAR_IDS = "MainCalendars";
+const PREGAME_CALENDAR_IDS_SHEET_NAME = "CalendarIdsPregame";
+const DRAFT_CALENDAR_IDS_SHEET_NAME = "CalendarIdsDraft";
+const PRODUCTION_CALENDAR_IDS_SHEET_NAME = "CalendarIdsProduction";
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the user interface
-
   const email = Session.getActiveUser().getEmail();
-
-  // if (email === "jg5626@nyu.edu") {
-  //   ui.createMenu("Calendar") // Create a new menu
-  //     .addItem("Push To Draft Calendars", "pushToDraftCalendars") // Add a menu item
-  //     .addToUi(); // Add the menu to the UI
-
-  //   ui.createMenu("Finalize")
-  //     .addItem("Push To Main Calendars", "pushToMainCalendars") // Add item to the submenu
-  //     .addToUi(); // Add the menu to the UI
-  // }
   if (isDevTeam(email)) createDevTeamMenu(ui);
   else if (isAdmin(email)) createAdminMenu(ui);
-}
-
-function createDevTeamMenu(ui) {
-  ui.createMenu("Calendar")
-    .addItem("Write all Pregame Calendar classes", "writeClassesToPregame")
-    .addItem("Write all Pregame Calendar events", "writeEventsToPregame")
-    .addItem("Delete all Pregame Calendar classes", "deleteClassesFromPregame")
-    .addItem("Delete all Pregame Calendar events", "deleteEventsFromPregame")
-    .addItem("Delete all Draft Calendar classes", "deleteClassesFromDraft")
-    .addItem("Delete all Draft Calendar events", "deleteEventsFromDraft")
-    .addToUi();
-}
-
-function createAdminMenu(ui) {
-  ui.createMenu("Calendar")
-    .addItem("Write all Class rows to Draft Calendars", "writeClassesToDraft")
-    .addItem("Write all Event rows to Draft Calendars", "writeEventsToDraft")
-    .addItem("Delete all Draft Calendar classes", "deleteClassesFromDraft")
-    .addItem("Delete all Draft Calendar events", "deleteEventsFromDraft")
-    .addToUi();
 }
 
 function isDevTeam(email) {
@@ -49,26 +19,108 @@ function isAdmin(email) {
   return adminTeam.includes(email);
 }
 
-function pushToDraftCalendars() {
-  pushToCalendar(true, DRAFT_CALENDAR_IDS);
+function createDevTeamMenu(ui) {
+  ui.createMenu("Calendar")
+    .addItem("Write all Pregame Calendar classes", "writeClassesToPregame")
+    .addItem("Write all Pregame Calendar events", "writeEventsToPregame")
+    .addItem("Write all Pregame Calendars", "writeAllToPregame")
+    .addItem("Delete all Pregame Calendar classes", "deleteClassesFromPregame")
+    .addItem("Delete all Pregame Calendar events", "deleteEventsFromPregame")
+    .addToUi();
 }
 
-function pushToMainCalendars() {
-  pushToCalendar(false, MAIN_CALENDAR_IDS);
+function createAdminMenu(ui) {
+  ui.createMenu("Calendar")
+    .addItem("Write all Class rows to Draft Calendars", "writeClassesToDraft")
+    .addItem("Write all Event rows to Draft Calendars", "writeEventsToDraft")
+    .addItem(
+      "Write all Draft Calendar events to Production",
+      "writeEventsToProduction"
+    )
+    .addItem("Delete all Draft Calendar classes", "deleteClassesFromDraft")
+    .addItem("Delete all Draft Calendar events", "deleteEventsFromDraft")
+    .addToUi();
 }
 
-function pushToCalendar(eventsWillDelete, calendarInfoSheetName) {
+function writeClassesToPregame() {
+  pushToCalendarByCategory(true, PREGAME_CALENDAR_IDS_SHEET_NAME, "Class");
+}
+
+function writeEventsToPregame() {
+  pushToCalendarByCategory(true, PREGAME_CALENDAR_IDS_SHEET_NAME, "Event");
+}
+
+function writeAllToPregame() {
+  pushToCalendarByCategory(false, PREGAME_CALENDAR_IDS_SHEET_NAME, null);
+}
+
+function writeClassesToDraft() {
+  pushToCalendarByCategory(true, DRAFT_CALENDAR_IDS_SHEET_NAME, "Class");
+}
+
+function writeEventsToDraft() {
+  pushToCalendarByCategory(true, DRAFT_CALENDAR_IDS_SHEET_NAME, "Event");
+}
+
+function writeEventsToProduction() {
+  pushToCalendarByCategory(false, PRODUCTION_CALENDAR_IDS_SHEET_NAME, null);
+}
+
+function deleteClassesFromPregame() {
+  deleteCalendarEventsByCategory(PREGAME_CALENDAR_IDS_SHEET_NAME, "Class");
+}
+
+function deleteEventsFromPregame() {
+  deleteCalendarEventsByCategory(PREGAME_CALENDAR_IDS_SHEET_NAME, "Event");
+}
+
+function deleteClassesFromDraft() {
+  deleteCalendarEventsByCategory(DRAFT_CALENDAR_IDS_SHEET_NAME, "Class");
+}
+
+function deleteEventsFromDraft() {
+  deleteCalendarEventsByCategory(DRAFT_CALENDAR_IDS_SHEET_NAME, "Event");
+}
+
+function pushToCalendarByCategory(
+  eventsWillDelete,
+  calendarInfoSheetName,
+  category
+) {
   const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
     calendarInfoSheetName
   );
   const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  createCalendarEvents(roomInfoSheet, bookingInfoSheet[1], eventsWillDelete);
+  createCalendarEventsByCategory(
+    roomInfoSheet,
+    bookingInfoSheet[1],
+    eventsWillDelete,
+    category
+  );
 }
 
-function createCalendarEvents(
+function deleteCalendarEventsByCategory(calendarInfoSheetName, category) {
+  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
+    calendarInfoSheetName
+  );
+  const roomNames = getRoomColumnValues(roomInfoSheet, "A:A");
+  const roomCalendarIds = getRoomColumnValues(roomInfoSheet, "B:B");
+  const roomCalendarMap = createHashMap(roomNames, roomCalendarIds);
+  for (let i = 0; i < roomCalendarIds.length; i++) {
+    try {
+      const roomCalendar = roomCalendarMap[i];
+      deleteEventsByCategory(roomCalendar, category);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+function createCalendarEventsByCategory(
   roomInfoSheet,
   bookingInfoSheet,
-  eventsWillDelete
+  eventsWillDelete,
+  category
 ) {
   console.log(eventsWillDelete);
 
@@ -76,6 +128,7 @@ function createCalendarEvents(
   var eventTitles = getColumnValues(bookingInfoSheet, "G2:G");
   var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "H", "S");
   var departments = getColumnValues(bookingInfoSheet, "D2:D");
+  var reservationCategories = getColumnValues(bookingInfoSheet, "E2:E"); // Column E for Reservation Category
   var descriptionInfo = getDescriptionInfo(bookingInfoSheet, "AD", "AM");
   var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "U", "Y");
 
@@ -103,7 +156,7 @@ function createCalendarEvents(
     for (let i = 0; i < roomCalendarIds.length; i++) {
       try {
         const roomCalendar = roomCalendarMap[i];
-        deleteEvents(roomCalendar);
+        deleteEventsByCategory(roomCalendar, category);
       } catch (error) {
         console.log(error);
       }
@@ -113,6 +166,11 @@ function createCalendarEvents(
   for (let i = 0; i + 1 < bookingInfoSheet.getMaxRows(); i++) {
     i = skipEmptyRows(bookingInfoSheet, i);
     if (i + 2 > bookingInfoSheet.getMaxRows()) break;
+
+    // Skip rows that don't match the specified category
+    if (category !== null && reservationCategories[i] !== category) {
+      continue;
+    }
 
     var recurrenceRule = null;
     if (isRecurring[i]) {
@@ -157,6 +215,7 @@ function createCalendarEvents(
       '<h2 style="font-size:24px; font-weight:bold;">Requester Details </h2>' +
       requesterEmails[i] +
       '<h2 style="font-size:24px; font-weight:bold;">Reservation Details </h2>' +
+      `• Category: ${reservationCategories[i]}\n` +
       descriptionInfo[i].map((item) => `• ${item}`).join("\n") +
       '<h2 style="font-size:24px; font-weight:bold;">Cancellation Policy </h2>' +
       "To cancel reservations please return to the Booking Tool, visit My Bookings, and click" +
@@ -412,6 +471,12 @@ function getFirstValidWeekday(startDate, validWeekdays) {
 function skipEmptyRows(bookingInfoSheet, i) {
   const numRows = bookingInfoSheet.getLastRow() - (i + 2) + 1;
 
+  // If there are no rows, set i to the last row
+  if (numRows < 1) {
+    i = bookingInfoSheet.getMaxRows();
+    return i;
+  }
+
   var row = bookingInfoSheet.getRange(
     i + 2,
     1,
@@ -466,7 +531,7 @@ function checkRowData(rowData) {
   return isEmpty;
 }
 
-function deleteEvents(roomCalendar) {
+function deleteEventsByCategory(roomCalendar, category) {
   const allEvents = roomCalendar.getEvents(
     new Date("2000-01-01"),
     new Date("2100-01-01")
@@ -477,6 +542,14 @@ function deleteEvents(roomCalendar) {
   for (let i = allEvents.length - 1; i >= 0; i--) {
     const event = allEvents[i];
     const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
+    const eventDescription = event.getDescription();
+
+    if (
+      category !== null &&
+      !eventDescription.includes(`Category: ${category}`)
+    ) {
+      continue;
+    }
 
     try {
       if (!uniqueEvents.has(eventKey)) {
