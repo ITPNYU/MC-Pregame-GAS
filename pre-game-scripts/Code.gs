@@ -6,15 +6,47 @@ function onOpen() {
 
   const email = Session.getActiveUser().getEmail();
 
-  if (email === "jg5626@nyu.edu") {
-    ui.createMenu("Calendar") // Create a new menu
-      .addItem("Push To Draft Calendars", "pushToDraftCalendars") // Add a menu item
-      .addToUi(); // Add the menu to the UI
+  // if (email === "jg5626@nyu.edu") {
+  //   ui.createMenu("Calendar") // Create a new menu
+  //     .addItem("Push To Draft Calendars", "pushToDraftCalendars") // Add a menu item
+  //     .addToUi(); // Add the menu to the UI
 
-    ui.createMenu("Finalize")
-      .addItem("Push To Main Calendars", "pushToMainCalendars") // Add item to the submenu
-      .addToUi(); // Add the menu to the UI
-  }
+  //   ui.createMenu("Finalize")
+  //     .addItem("Push To Main Calendars", "pushToMainCalendars") // Add item to the submenu
+  //     .addToUi(); // Add the menu to the UI
+  // }
+  if (isDevTeam(email)) createDevTeamMenu(ui);
+  else if (isAdmin(email)) createAdminMenu(ui);
+}
+
+function createDevTeamMenu(ui) {
+  ui.createMenu("Calendar")
+    .addItem("Write all Pregame Calendar classes", "writeClassesToPregame")
+    .addItem("Write all Pregame Calendar events", "writeEventsToPregame")
+    .addItem("Delete all Pregame Calendar classes", "deleteClassesFromPregame")
+    .addItem("Delete all Pregame Calendar events", "deleteEventsFromPregame")
+    .addItem("Delete all Draft Calendar classes", "deleteClassesFromDraft")
+    .addItem("Delete all Draft Calendar events", "deleteEventsFromDraft")
+    .addToUi();
+}
+
+function createAdminMenu(ui) {
+  ui.createMenu("Calendar")
+    .addItem("Write all Class rows to Draft Calendars", "writeClassesToDraft")
+    .addItem("Write all Event rows to Draft Calendars", "writeEventsToDraft")
+    .addItem("Delete all Draft Calendar classes", "deleteClassesFromDraft")
+    .addItem("Delete all Draft Calendar events", "deleteEventsFromDraft")
+    .addToUi();
+}
+
+function isDevTeam(email) {
+  const devTeam = ["bs4396@nyu.edu", "nnp278@nyu.edu", "rh3555@nyu.edu"];
+  return devTeam.includes(email);
+}
+
+function isAdmin(email) {
+  const adminTeam = ["jg5626@nyu.edu"];
+  return adminTeam.includes(email);
 }
 
 function pushToDraftCalendars() {
@@ -610,10 +642,8 @@ function getDescriptionInfo(sheet, startColumn, endColumn) {
     for (let col = 0; col < numberOfColumns; col++) {
       const title = dataRange[0][col]; // First row = title
       const value = dataRange[row][col];
-      if (value == "")
-        rowArray.push(
-          `${title}: ${false}`
-        ); // Format as "Title: Value" // Current row value
+      if (value == "") rowArray.push(`${title}: ${false}`);
+      // Format as "Title: Value" // Current row value
       else rowArray.push(`${title}: ${value}`); // Format as "Title: Value"
     }
 
