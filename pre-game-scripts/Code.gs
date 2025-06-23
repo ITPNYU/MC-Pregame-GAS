@@ -1,3 +1,6 @@
+const DRAFT_CALENDAR_IDS = "RoomInfo";
+const MAIN_CALENDAR_IDS = "MainCalendars";
+
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the user interface
 
@@ -15,11 +18,11 @@ function onOpen() {
 }
 
 function pushToDraftCalendars() {
-  pushToCalendar(true, "RoomInfo");
+  pushToCalendar(true, DRAFT_CALENDAR_IDS);
 }
 
 function pushToMainCalendars() {
-  pushToCalendar(false, "MainCalendars");
+  pushToCalendar(false, MAIN_CALENDAR_IDS);
 }
 
 function pushToCalendar(eventsWillDelete, calendarInfoSheetName) {
@@ -38,17 +41,17 @@ function createCalendarEvents(
   console.log(eventsWillDelete);
 
   var requesterEmails = getColumnValues(bookingInfoSheet, "B2:B");
-  var eventTitles = getColumnValues(bookingInfoSheet, "F2:F");
-  var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "G", "Q");
+  var eventTitles = getColumnValues(bookingInfoSheet, "G2:G");
+  var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "H", "S");
   var departments = getColumnValues(bookingInfoSheet, "D2:D");
-  var descriptionInfo = getDescriptionInfo(bookingInfoSheet, "AB", "AK");
-  var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "S", "W");
+  var descriptionInfo = getDescriptionInfo(bookingInfoSheet, "AD", "AM");
+  var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "U", "Y");
 
-  var startDateCells = getColumnValues(bookingInfoSheet, "X2:X");
-  var startTimeCells = getColumnValues(bookingInfoSheet, "Y2:Y");
-  var endDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
-  var endTimeCells = getColumnValues(bookingInfoSheet, "AA2:AA");
-  var isRecurring = getColumnValues(bookingInfoSheet, "R2:R");
+  var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
+  var startTimeCells = getColumnValues(bookingInfoSheet, "AA2:AA");
+  var endDateCells = getColumnValues(bookingInfoSheet, "AB2:AB");
+  var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
+  var isRecurring = getColumnValues(bookingInfoSheet, "T2:T");
 
   var roomNames = getRoomColumnValues(roomInfoSheet, "A:A");
   var roomCalendarIds = getRoomColumnValues(roomInfoSheet, "B:B");

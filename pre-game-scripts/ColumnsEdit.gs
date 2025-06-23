@@ -1,14 +1,14 @@
-const garage = 7; // Column G
-const audioLab = 14;
+const garage = 8; // Column H
+const audioLab = 16;
 
-const audioLabNeeds = 29;
-const garageLightingNeeds = 30;
-const garageAudioNeeds = 31;
+const audioLabNeeds = 31;
+const garageLightingNeeds = 32;
+const garageAudioNeeds = 33;
 
-const recurring = 18;
+const recurring = 20;
 
 let timeEdit = [];
-timeEdit.push(19, 20, 21, 22, 23);
+timeEdit.push(21, 22, 23, 24, 25);
 
 function onEdit(e) {
   const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
@@ -79,28 +79,28 @@ function handleEdit(row, newValue, column, sheet, roomInfoSheet, message) {
   if (column === garage) {
     if (newValue === true) {
       sourceRanges.push("E2", "F2");
-      restoreColumns.push(30, 31); //should always be equal in length to sourceRanges
+      restoreColumns.push(32, 33); //should always be equal in length to sourceRanges
       restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
     } else if (newValue === false) {
-      targetColumns.push(30, 31);
+      targetColumns.push(32, 33);
       removeDropdowns(targetColumns, row, sheet, message);
     }
   } else if (column === audioLab) {
     if (newValue === true) {
       sourceRanges.push("D2");
-      restoreColumns.push(29); //should always be equal in length to sourceRanges
+      restoreColumns.push(31); //should always be equal in length to sourceRanges
       restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
     } else if (newValue === false) {
-      targetColumns.push(29);
+      targetColumns.push(31);
       removeDropdowns(targetColumns, row, sheet, message);
     }
   } else if (column === recurring) {
     if (newValue == true) {
       sourceRanges.push("G2", "G2", "G2", "G2", "G2");
-      restoreColumns.push(19, 20, 21, 22, 23); //should always be equal in length to sourceRanges
+      restoreColumns.push(21, 22, 23, 24, 25); //should always be equal in length to sourceRanges
       restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
     } else if (newValue == false) {
-      targetColumns.push(19, 20, 21, 22, 23);
+      targetColumns.push(21, 22, 23, 24, 25);
       removeDropdowns(targetColumns, row, sheet, message);
     }
   }
