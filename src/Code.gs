@@ -5,11 +5,10 @@ const PRODUCTION_CALENDAR_IDS_SHEET_NAME = "CalendarIdsProduction";
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the user interface
   const email = Session.getActiveUser().getEmail();
-  if (isDevTeam(email)) createDevTeamMenu(ui);
-  else if (isAdmin(email)) {
+  if (isAdmin(email)) {
     createDevTeamMenu(ui);
     createAdminMenu(ui);
-  }
+  } else if (isDevTeam(email)) createDevTeamMenu(ui);
 }
 
 function isDevTeam(email) {
@@ -143,6 +142,7 @@ function createCalendarEventsByCategory(
 ) {
   console.log(eventsWillDelete);
 
+  var reservationContacts = getColumnValues(bookingInfoSheet, "A2:A");
   var requesterEmails = getColumnValues(bookingInfoSheet, "B2:B");
   var eventTitles = getColumnValues(bookingInfoSheet, "G2:G");
   var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "H", "S");
@@ -150,6 +150,16 @@ function createCalendarEventsByCategory(
   var reservationCategories = getColumnValues(bookingInfoSheet, "E2:E"); // Column E for Reservation Category
   var descriptionInfo = getDescriptionInfo(bookingInfoSheet, "AD", "AM");
   var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "U", "Y");
+  var expectedAttendance = getColumnValues(bookingInfoSheet, "AD2:AD");
+  var audioLabStaffNeeded = getColumnValues(bookingInfoSheet, "AE2:AE");
+  var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AF2:AF");
+  var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AG2:AG");
+  var equipmentNeeded = getColumnValues(bookingInfoSheet, "AH2:AH");
+  var cateringNeeded = getColumnValues(bookingInfoSheet, "AI2:AI");
+  var cleaningNeeded = getColumnValues(bookingInfoSheet, "AJ2:AJ");
+  var roomSetupNeeded = getColumnValues(bookingInfoSheet, "AK2:AK");
+  var campusSecurityNeeded = getColumnValues(bookingInfoSheet, "AL2:AL");
+  var briefDescription = getColumnValues(bookingInfoSheet, "AM2:AM");
 
   var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
   var startTimeCells = getColumnValues(bookingInfoSheet, "AA2:AA");
@@ -230,15 +240,111 @@ function createCalendarEventsByCategory(
 
     const title =
       numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
+
+    const formattedDate = Utilities.formatDate(
+      startDateCells[i],
+      Session.getScriptTimeZone(),
+      "MMMM d, yyyy"
+    );
+    const formattedEndDate = Utilities.formatDate(
+      endDateCells[i],
+      Session.getScriptTimeZone(),
+      "MMMM d, yyyy"
+    );
+    const formattedStartTime = Utilities.formatDate(
+      startTimeCells[i],
+      Session.getScriptTimeZone(),
+      "h:mm a"
+    );
+    const formattedEndTime = Utilities.formatDate(
+      endTimeCells[i],
+      Session.getScriptTimeZone(),
+      "h:mm a"
+    );
+
     const eventDescription =
-      '<h2 style="font-size:24px; font-weight:bold;">Requester Details </h2>' +
-      requesterEmails[i] +
-      '<h2 style="font-size:24px; font-weight:bold;">Reservation Details </h2>' +
-      `• Category: ${reservationCategories[i]}\n` +
-      descriptionInfo[i].map((item) => `• ${item}`).join("\n") +
-      '<h2 style="font-size:24px; font-weight:bold;">Cancellation Policy </h2>' +
-      "To cancel reservations please return to the Booking Tool, visit My Bookings, and click" +
-      " 'cancel' on the booking at least 24 hours before the date of the event. Failure to cancel an unused booking is considered a no-show and may result in restricted use of the space.";
+      "<b>Request</b><br/>" +
+      "• Room(s): " +
+      numberArray.join(", ") +
+      "<br/>" +
+      "• Date: " +
+      formattedDate +
+      (formattedEndDate && formattedEndDate !== formattedDate
+        ? " - " + formattedEndDate
+        : "") +
+      "<br/>" +
+      "• Time: " +
+      formattedStartTime +
+      (formattedEndTime ? " - " + formattedEndTime : "") +
+      "<br/>" +
+      "• Status: " +
+      "none" +
+      "<br/>" +
+      "<br/><b>Requester</b><br/>" +
+      "• NetID: " +
+      "none" +
+      "<br/>" +
+      "• Name: " +
+      (reservationContacts[i] ? reservationContacts[i] : "") +
+      "<br/>" +
+      "• Department: " +
+      (departments[i] ? departments[i] : "") +
+      "<br/>" +
+      "• Email: " +
+      (requesterEmails[i] ? requesterEmails[i] : "") +
+      "<br/>" +
+      "• Phone: " +
+      "none" +
+      "<br/>" +
+      "• Security Contact Name: " +
+      "none" +
+      "<br/>" +
+      "• Sponsor Name: " +
+      "none" +
+      "<br/>" +
+      "• Sponsor Email: " +
+      "none" +
+      "<br/>" +
+      "<br/><b>Details</b><br/>" +
+      "• Title: " +
+      (eventTitles[i] ? eventTitles[i] : "") +
+      "<br/>" +
+      "• Description: " +
+      (briefDescription[i] ? briefDescription[i] : "") +
+      "<br/>" +
+      "• Category: " +
+      (reservationCategories[i] ? reservationCategories[i] : "") +
+      "<br/>" +
+      "• Booking Type: " +
+      "none" +
+      "<br/>" +
+      "• Expected Attendance: " +
+      (expectedAttendance[i] ? expectedAttendance[i] : "") +
+      "<br/>" +
+      "• Attendee Affiliation: " +
+      "none" +
+      "<br/>" +
+      "<br/><b>Services</b><br/>" +
+      "• Room Setup: " +
+      (roomSetupNeeded[i] ? roomSetupNeeded[i] : "") +
+      "<br/>" +
+      "• Media Service: " +
+      (audioLabStaffNeeded[i] ? "Audio Lab Staffing," : "") +
+      (garageLightingNeeded[i] ? "Garage Lighting Staffing," : "") +
+      (garageAudioNeeded[i] ? "Garage Audio Staffing," : "") +
+      (equipmentNeeded[i] ? "Equipment," : "") +
+      "<br/>" +
+      "• Catering: " +
+      (cateringNeeded[i] ? cateringNeeded[i] : "") +
+      "<br/>" +
+      "• Cleaning: " +
+      (cleaningNeeded[i] ? cleaningNeeded[i] : "") +
+      "<br/>" +
+      "• Security: " +
+      (campusSecurityNeeded[i] ? campusSecurityNeeded[i] : "") +
+      "<br/>" +
+      "<br/><b>Cancellation Policy</b><br/>" +
+      "To cancel reservations please return to the Booking Tool, visit My Bookings, and click 'cancel' on the booking at least 24 hours before the date of the event. Failure to cancel an unused booking is considered a no-show and may result in restricted use of the space.";
 
     const startDate = new Date(startDateCells[i]);
     const endDate = new Date(endDateCells[i]);
