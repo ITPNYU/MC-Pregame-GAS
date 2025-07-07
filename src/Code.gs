@@ -241,48 +241,19 @@ function createCalendarEventsByCategory(
     const title =
       numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
 
-    const formattedDate = Utilities.formatDate(
-      startDateCells[i],
-      Session.getScriptTimeZone(),
-      "MMMM d, yyyy"
-    );
-    const formattedEndDate = Utilities.formatDate(
-      endDateCells[i],
-      Session.getScriptTimeZone(),
-      "MMMM d, yyyy"
-    );
-    const formattedStartTime = Utilities.formatDate(
-      startTimeCells[i],
-      Session.getScriptTimeZone(),
-      "h:mm a"
-    );
-    const formattedEndTime = Utilities.formatDate(
-      endTimeCells[i],
-      Session.getScriptTimeZone(),
-      "h:mm a"
-    );
+    const requesterNetID = getNetIDfromEmail(requesterEmails[i]);
 
     const eventDescription =
       "<b>Request</b><br/>" +
       "• Room(s): " +
       numberArray.join(", ") +
       "<br/>" +
-      "• Date: " +
-      formattedDate +
-      (formattedEndDate && formattedEndDate !== formattedDate
-        ? " - " + formattedEndDate
-        : "") +
-      "<br/>" +
-      "• Time: " +
-      formattedStartTime +
-      (formattedEndTime ? " - " + formattedEndTime : "") +
-      "<br/>" +
       "• Status: " +
-      "none" +
+      "APPROVED" +
       "<br/>" +
       "<br/><b>Requester</b><br/>" +
       "• NetID: " +
-      "none" +
+      (requesterNetID ? requesterNetID : "none") +
       "<br/>" +
       "• Name: " +
       (reservationContacts[i] ? reservationContacts[i] : "") +
@@ -296,7 +267,7 @@ function createCalendarEventsByCategory(
       "• Phone: " +
       "none" +
       "<br/>" +
-      "• Security Contact Name: " +
+      "• Secondary Contact Name: " +
       "none" +
       "<br/>" +
       "• Sponsor Name: " +
@@ -315,7 +286,7 @@ function createCalendarEventsByCategory(
       "• Category: " +
       (reservationCategories[i] ? reservationCategories[i] : "") +
       "<br/>" +
-      "• Booking Type: " +
+      "• Reservation Type: " +
       "none" +
       "<br/>" +
       "• Expected Attendance: " +
@@ -324,15 +295,23 @@ function createCalendarEventsByCategory(
       "• Attendee Affiliation: " +
       "none" +
       "<br/>" +
+      "• Origin: Pregame" +
+      "<br/>" +
       "<br/><b>Services</b><br/>" +
       "• Room Setup: " +
       (roomSetupNeeded[i] ? roomSetupNeeded[i] : "") +
       "<br/>" +
-      "• Media Service: " +
-      (audioLabStaffNeeded[i] ? "Audio Lab Staffing," : "") +
-      (garageLightingNeeded[i] ? "Garage Lighting Staffing," : "") +
-      (garageAudioNeeded[i] ? "Garage Audio Staffing," : "") +
-      (equipmentNeeded[i] ? "Equipment," : "") +
+      "• Equipment: " +
+      (equipmentNeeded[i] ? "Equipment" : "") +
+      "<br/>" +
+      "• Staffing: " +
+      ([
+        audioLabStaffNeeded[i] ? "Audio Lab" : "",
+        garageLightingNeeded[i] ? "Garage Lighting" : "",
+        garageAudioNeeded[i] ? "Garage Audio" : "",
+      ]
+        .filter(Boolean)
+        .join(", ") || "none") +
       "<br/>" +
       "• Catering: " +
       (cateringNeeded[i] ? cateringNeeded[i] : "") +
@@ -456,6 +435,15 @@ function handleError(bookingInfoSheet, i) {
   bookingInfoSheet
     .getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn())
     .setBackground("red");
+}
+
+function getNetIDfromEmail(email) {
+  const reg = /^[A-Z0-9._%+-]+@nyu\.edu$/i;
+  if (reg.test(email)) {
+    const netID = email.split("@")[0];
+    return netID;
+  }
+  return null;
 }
 
 function getLongEventInfo(startDate, endDate, startTime, endTime) {
