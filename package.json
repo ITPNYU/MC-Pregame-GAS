@@ -4,7 +4,7 @@
   "description": "MC Pregame Google Apps Script project for room booking management",
   "scripts": {
     "push": "clasp push",
-    "push:prod": "cp .clasp.prod.json .clasp.json && clasp push",
+    "push:prod": "cp .clasp.prod.json .clasp.json && clasp push && cp .clasp.dev.json .clasp.json",
     "pull": "clasp pull",
     "deploy": "clasp deploy",
     "open": "clasp open-script",
