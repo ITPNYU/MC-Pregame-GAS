@@ -24,29 +24,31 @@ function createPregameMenu(ui) {
   const menu = ui.createMenu("Pregame");
 
   // Production section
-  menu
-    .addItem("Production", "noop")
-    .addItem("Write all rows with category: Class to Draft calendars", "writeClassesToDraft")
-    .addItem("Write all rows with category: Event to Draft calendars", "writeEventsToDraft")
-    .addItem("Write all Draft calendars content to Production calendars", "writeEventsToProduction")
-    .addItem("Delete all category: Class events from Draft calendars", "deleteClassesFromDraft")
-    .addItem("Delete all category: Event events from Draft calendars", "deleteEventsFromDraft")
-    .addItem("Delete all Draft calendars content", "deleteAllFromDraft");
+  menu.addSubMenu(
+    ui
+      .createMenu("Production")
+      .addItem("Write all rows with category: Class to Draft calendars", "writeClassesToDraft")
+      .addItem("Write all rows with category: Event to Draft calendars", "writeEventsToDraft")
+      .addItem("Write all Draft calendars content to Production calendars", "writeEventsToProduction")
+      .addItem("Delete all category: Class events from Draft calendars", "deleteClassesFromDraft")
+      .addItem("Delete all category: Event events from Draft calendars", "deleteEventsFromDraft")
+      .addItem("Delete all Draft calendars content", "deleteAllFromDraft")
+  );
 
   // Development section
-  menu
-    .addSeparator()
-    .addItem("Development", "noop")
-    .addItem("Write all rows with category: Class to Pregame calendars", "writeClassesToPregame")
-    .addItem("Write all rows with category: Event to Pregame calendars", "writeEventsToPregame")
-    .addItem("Write all Pregame calendars content to Draft calendars", "writeEventsToDraft")
-    .addItem("Delete all Category: Class events from Pregame calendars", "deleteClassesFromPregame")
-    .addItem("Delete all Category: Event events from Pregame calendars", "deleteEventsFromPregame")
-    .addItem("Delete all Pregame calendars content", "deleteAllFromPregame")
-    .addToUi();
-}
+  menu.addSubMenu(
+    ui
+      .createMenu("Development")
+      .addItem("Write all rows with category: Class to Pregame calendars", "writeClassesToPregame")
+      .addItem("Write all rows with category: Event to Pregame calendars", "writeEventsToPregame")
+      .addItem("Write all Pregame calendars content to Draft calendars", "writeEventsToDraft")
+      .addItem("Delete all Category: Class events from Pregame calendars", "deleteClassesFromPregame")
+      .addItem("Delete all Category: Event events from Pregame calendars", "deleteEventsFromPregame")
+      .addItem("Delete all Pregame calendars content", "deleteAllFromPregame")
+  );
 
-function noop() {}
+  menu.addToUi();
+}
 
 function writeClassesToPregame() {
   pushToCalendarByCategory(true, PREGAME_CALENDAR_IDS_SHEET_NAME, "Class");
