@@ -1,34 +1,42 @@
 const garage = 8; // Column H
-const audioLab = 16;
+const audioLab = 16; // Column P
+const garageLightingNeeds = 31; // Column AE
+const garageAudioNeeds = 32; // Column AF
+const audioLabNeeds = 33; // Column AG
+const recurring = 20; // Column T
+const recurringOnMonday = 21; // Column U
+const recurringOnTuesday = 22; // Column V
+const recurringOnWednesday = 23; // Column W
+const recurringOnThursday = 24; // Column X
+const recurringOnFriday = 25; // Column Y
+const timeEdit = [
+  recurringOnMonday, // Column U
+  recurringOnTuesday, // Column V
+  recurringOnWednesday, // Column W
+  recurringOnThursday, // Column X
+  recurringOnFriday, // Column Y
+];
 
-const audioLabNeeds = 31;
-const garageLightingNeeds = 32;
-const garageAudioNeeds = 33;
-
-const recurring = 20;
-
-let timeEdit = [];
-timeEdit.push(21, 22, 23, 24, 25);
+// Get rules from DataValidationRules sheet
+const DATA_VALIDATION_RULE_NAME = "DataValidationRules";
+const audioLabRule = "A2";
+const garageLightingRule = "B2";
+const garageAudioRule = "C2";
+const checkboxRule = "D2";
 
 function onEdit(e) {
   const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-
   const sheet = bookingInfoSheet[1];
-
-  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("RoomInfo");
-
+  const rulesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DATA_VALIDATION_RULE_NAME);
   const editedCell = e.range;
-
-  // Define columns: Monitor column 7 (G), target column 17 (Q)
 
   const row = editedCell.getRow();
   const newValue = editedCell.getValue();
 
-  // Check if the edited cell is in column G
   if (editedCell.getColumn() === garage) {
-    handleEdit(row, newValue, garage, sheet, roomInfoSheet, "");
+    handleEdit(row, newValue, garage, sheet, rulesSheet, "");
   } else if (editedCell.getColumn() === audioLab) {
-    handleEdit(row, newValue, audioLab, sheet, roomInfoSheet, "");
+    handleEdit(row, newValue, audioLab, sheet, rulesSheet, "");
   } else if (editedCell.getColumn() === audioLabNeeds) {
     deleteEdit(row, audioLab, audioLabNeeds, sheet, "Audio Lab Not Selected");
   } else if (editedCell.getColumn() === garageLightingNeeds) {
@@ -36,107 +44,80 @@ function onEdit(e) {
   } else if (editedCell.getColumn() === garageAudioNeeds) {
     deleteEdit(row, garage, garageAudioNeeds, sheet, "Garage Not Selected");
   } else if (editedCell.getColumn() === recurring) {
-    handleEdit(row, newValue, recurring, sheet, roomInfoSheet, "");
+    handleEdit(row, newValue, recurring, sheet, rulesSheet, "");
   } else if (timeEdit.includes(editedCell.getColumn())) {
     deleteEdit(row, recurring, editedCell.getColumn(), sheet, "Recurring Weekly Not Selected");
   }
 }
 
 function deleteEdit(row, referenceColumn, column, sheet, message) {
-  let targetColumns = [];
-
   const referenceValue = sheet.getRange(row, referenceColumn).getValue();
-
-  handleDelete(targetColumns, row, sheet, column, referenceValue, message);
+  if (referenceValue == false) removeDropdowns([column], row, sheet, message);
 }
 
-function handleDelete(targetColumns, row, sheet, column, referenceValue, message) {
-  targetColumns.push(column);
-  if (referenceValue == false) {
-    removeDropdowns(targetColumns, row, sheet, message);
-  }
-}
-
-function handleEdit(row, newValue, column, sheet, roomInfoSheet, message) {
-  let restoreColumns = [];
-  let targetColumns = []; // Column Q
-  let sourceRanges = []; // Column Q
-
+function handleEdit(row, newValue, column, sheet, rulesSheet, message) {
   if (column === garage) {
     if (newValue === true) {
-      sourceRanges.push("E2", "F2");
-      restoreColumns.push(32, 33); //should always be equal in length to sourceRanges
-      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
+      const sourceRanges = [garageLightingRule, garageAudioRule];
+      const restoreColumns = [garageLightingNeeds, garageAudioNeeds];
+      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, rulesSheet);
     } else if (newValue === false) {
-      targetColumns.push(32, 33);
+      const targetColumns = [garageLightingNeeds, garageAudioNeeds];
       removeDropdowns(targetColumns, row, sheet, message);
     }
   } else if (column === audioLab) {
     if (newValue === true) {
-      sourceRanges.push("D2");
-      restoreColumns.push(31); //should always be equal in length to sourceRanges
-      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
+      const sourceRanges = [audioLabRule];
+      const restoreColumns = [audioLabNeeds];
+      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, rulesSheet);
     } else if (newValue === false) {
-      targetColumns.push(31);
+      const targetColumns = [audioLabNeeds];
       removeDropdowns(targetColumns, row, sheet, message);
     }
   } else if (column === recurring) {
     if (newValue == true) {
-      sourceRanges.push("G2", "G2", "G2", "G2", "G2");
-      restoreColumns.push(21, 22, 23, 24, 25); //should always be equal in length to sourceRanges
-      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet);
+      const sourceRanges = [checkboxRule, checkboxRule, checkboxRule, checkboxRule, checkboxRule];
+      const restoreColumns = [...timeEdit];
+      restoreDropdowns(restoreColumns, sourceRanges, row, sheet, rulesSheet);
     } else if (newValue == false) {
-      targetColumns.push(21, 22, 23, 24, 25);
+      const targetColumns = [...timeEdit];
       removeDropdowns(targetColumns, row, sheet, message);
     }
   }
 }
 
-// function removeAndRestoreDropdowns(restoreColumns, targetColumns, sourceRanges, row, sheet, roomInfoSheet, message) {
-
-//   for (let i = 0; i < targetColumns.length; i++) {
-
-//     var targetRange = sheet.getRange(row, targetColumns[i]);
-//     removeDropdown(targetRange, message);
-
-//   }
-
-//   for (let j = 0; j < sourceRanges.length; j++) {
-
-//     var sourceRange = roomInfoSheet.getRange(sourceRanges[j]);
-//     var restoreRange = sheet.getRange(row, restoreColumns[j]);
-//     restoreDropdown(restoreRange, sourceRange);
-
-//   }
-
-// }
-
 function removeDropdowns(targetColumns, row, sheet, message) {
   for (let i = 0; i < targetColumns.length; i++) {
     var targetRange = sheet.getRange(row, targetColumns[i]);
+    // Remove data validation (disable editing) for the target cell,
+    // Optionally clear the value
+    targetRange.clearDataValidations();
+    targetRange.setValue("");
 
-    // Remove data validation (disable editing) for the target cell
-    targetRange.clearDataValidations(); // Clear existing validations
-    //targetRange.setBackground("#D9D9D9"); // Set background to grey
-    if (message === "") {
-      targetRange.setValue(""); // Optionally clear the value
-    } else {
-      targetRange.setValue("N/A" + " - " + message); // Optionally clear the value
+    // Show error message with Alert
+    if (message !== "") {
+      const indexToColumn = (index) => {
+        if (index > 26) {
+          return String.fromCharCode(65) + String.fromCharCode(65 + index - 27);
+        } else {
+          return String.fromCharCode(65 + index - 1);
+        }
+      };
+      SpreadsheetApp.getUi().alert(`Row ${row}, Column ${indexToColumn(targetColumns[i])}: ${message}`);
     }
-    //removeDropdown(targetRange, message);
   }
 }
 
-function restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet) {
+function restoreDropdowns(restoreColumns, sourceRanges, row, sheet, rulesSheet) {
   for (let j = 0; j < sourceRanges.length; j++) {
-    var sourceRange = roomInfoSheet.getRange(sourceRanges[j]);
+    var sourceRange = rulesSheet.getRange(sourceRanges[j]);
     var restoreRange = sheet.getRange(row, restoreColumns[j]);
 
-    // Restore dropdown in target cell if condition is not met
-    restoreRange.setValue(""); // Optionally clear the value
+    // Restore dropdown in target cell if condition is not met,
+    // Optionally clear the value
+    restoreRange.setValue("");
 
     const rule = sourceRange.getDataValidation();
-
     restoreRange.setDataValidation(rule); // Restore the dropdown
     restoreRange.setBackground("white"); // Reset background color
   }
