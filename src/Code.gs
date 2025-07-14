@@ -23,26 +23,11 @@ function isAdmin(email) {
 
 function createDevTeamMenu(ui) {
   ui.createMenu("Pregame (Dev)")
-    .addItem(
-      "Write all Class rows to Pregame Calendars",
-      "writeClassesToPregame"
-    )
-    .addItem(
-      "Write all Event rows to Pregame Calendars",
-      "writeEventsToPregame"
-    )
-    .addItem(
-      "Delete all classes from Pregame Calendar",
-      "deleteClassesFromPregame"
-    )
-    .addItem(
-      "Delete all events from Pregame Calendar",
-      "deleteEventsFromPregame"
-    )
-    .addItem(
-      "Write all Pregame Calendar events and classes to Draft",
-      "writeEventsToDraft"
-    )
+    .addItem("Write all Class rows to Pregame Calendars", "writeClassesToPregame")
+    .addItem("Write all Event rows to Pregame Calendars", "writeEventsToPregame")
+    .addItem("Delete all classes from Pregame Calendar", "deleteClassesFromPregame")
+    .addItem("Delete all events from Pregame Calendar", "deleteEventsFromPregame")
+    .addItem("Write all Pregame Calendar events and classes to Draft", "writeEventsToDraft")
     .addToUi();
 }
 
@@ -52,10 +37,7 @@ function createAdminMenu(ui) {
     .addItem("Write all Event rows to Draft Calendars", "writeEventsToDraft")
     .addItem("Delete all classes from Draft Calendar", "deleteClassesFromDraft")
     .addItem("Delete all events from Draft Calendar", "deleteEventsFromDraft")
-    .addItem(
-      "Write all Draft Calendar events and classes to Production",
-      "writeEventsToProduction"
-    )
+    .addItem("Write all Draft Calendar events and classes to Production", "writeEventsToProduction")
     .addToUi();
 }
 
@@ -100,27 +82,14 @@ function deleteEventsFromDraft() {
   deleteCalendarEventsByCategory(DRAFT_CALENDAR_IDS_SHEET_NAME, "Event");
 }
 
-function pushToCalendarByCategory(
-  eventsWillDelete,
-  calendarInfoSheetName,
-  category
-) {
-  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
-    calendarInfoSheetName
-  );
+function pushToCalendarByCategory(eventsWillDelete, calendarInfoSheetName, category) {
+  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(calendarInfoSheetName);
   const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  createCalendarEventsByCategory(
-    roomInfoSheet,
-    bookingInfoSheet[1],
-    eventsWillDelete,
-    category
-  );
+  createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet[1], eventsWillDelete, category);
 }
 
 function deleteCalendarEventsByCategory(calendarInfoSheetName, category) {
-  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
-    calendarInfoSheetName
-  );
+  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(calendarInfoSheetName);
   const roomNames = getRoomColumnValues(roomInfoSheet, "A:A");
   const roomCalendarIds = getRoomColumnValues(roomInfoSheet, "B:B");
   const roomCalendarMap = createHashMap(roomNames, roomCalendarIds);
@@ -134,12 +103,7 @@ function deleteCalendarEventsByCategory(calendarInfoSheetName, category) {
   }
 }
 
-function createCalendarEventsByCategory(
-  roomInfoSheet,
-  bookingInfoSheet,
-  eventsWillDelete,
-  category
-) {
+function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsWillDelete, category) {
   console.log(eventsWillDelete);
 
   var reservationContacts = getColumnValues(bookingInfoSheet, "A2:A");
@@ -175,11 +139,7 @@ function createCalendarEventsByCategory(
   const roomCalendarMap = createHashMap(roomNames, roomCalendarIds);
   const roomCalendarIDMap = createIDHashMap(roomNames, roomCalendarIds);
 
-  var { startTimes, endTimes } = getStartAndEndTimes(
-    startDateCells,
-    startTimeCells,
-    endTimeCells
-  );
+  var { startTimes, endTimes } = getStartAndEndTimes(startDateCells, startTimeCells, endTimeCells);
 
   if (eventsWillDelete == true) {
     for (let i = 0; i < roomCalendarIds.length; i++) {
@@ -206,10 +166,7 @@ function createCalendarEventsByCategory(
       recurrenceRule = getRecurrenceRule(endDateCells[i], weeklyValues[i]);
 
       const validWeekdays = getValidWeekdays(weeklyValues[i]);
-      const { date: tempStartTime, offset } = getFirstValidWeekday(
-        startTimes[i],
-        validWeekdays
-      );
+      const { date: tempStartTime, offset } = getFirstValidWeekday(startTimes[i], validWeekdays);
 
       startTimes[i] = tempStartTime;
 
@@ -238,8 +195,7 @@ function createCalendarEventsByCategory(
       }
     }
 
-    const title =
-      numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
+    const title = numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
 
     const requesterNetID = getNetIDfromEmail(requesterEmails[i]);
 
@@ -331,98 +287,59 @@ function createCalendarEventsByCategory(
 
     try {
       if (recurrenceRule) {
-        roomCalendarMap[inviteRoom].createEventSeries(
-          title,
-          startTimes[i],
-          endTimes[i],
-          recurrenceRule,
-          {
-            guests: inviteeCalendars.join(","), // Calendar emails as guests
-            sendInvites: true,
-            description: eventDescription,
-          }
-        );
-      } else if (
-        startDate.getTime() === endDate.getTime() ||
-        endDateCells[i] == ""
-      ) {
-        roomCalendarMap[inviteRoom].createEvent(
-          title,
-          startTimes[i],
-          endTimes[i],
-          {
-            guests: inviteeCalendars.join(","), // Calendar emails as guests
-            sendInvites: true,
-            description: eventDescription,
-          }
-        );
+        roomCalendarMap[inviteRoom].createEventSeries(title, startTimes[i], endTimes[i], recurrenceRule, {
+          guests: inviteeCalendars.join(","), // Calendar emails as guests
+          sendInvites: true,
+          description: eventDescription,
+        });
+      } else if (startDate.getTime() === endDate.getTime() || endDateCells[i] == "") {
+        roomCalendarMap[inviteRoom].createEvent(title, startTimes[i], endTimes[i], {
+          guests: inviteeCalendars.join(","), // Calendar emails as guests
+          sendInvites: true,
+          description: eventDescription,
+        });
       } else if (startDate < endDate) {
-        const { dailyStartTimes, dailyEndTimes, recurrenceRule } =
-          getLongEventInfo(startDate, endDate, startTimes[i], endTimes[i]);
+        const { dailyStartTimes, dailyEndTimes, recurrenceRule } = getLongEventInfo(
+          startDate,
+          endDate,
+          startTimes[i],
+          endTimes[i]
+        );
 
         if (recurrenceRule) {
-          roomCalendarMap[inviteRoom].createEvent(
-            title,
-            dailyStartTimes[0],
-            dailyEndTimes[0],
-            {
-              guests: inviteeCalendars.join(","), // Calendar emails as guests
-              sendInvites: true,
-              description: eventDescription,
-            }
-          );
-          roomCalendarMap[inviteRoom].createEventSeries(
-            title,
-            dailyStartTimes[1],
-            dailyEndTimes[1],
-            recurrenceRule,
-            {
-              guests: inviteeCalendars.join(","), // Calendar emails as guests
-              sendInvites: true,
-              description: eventDescription,
-            }
-          );
-          roomCalendarMap[inviteRoom].createEvent(
-            title,
-            dailyStartTimes[2],
-            dailyEndTimes[2],
-            {
-              guests: inviteeCalendars.join(","), // Calendar emails as guests
-              sendInvites: true,
-              description: eventDescription,
-            }
-          );
+          roomCalendarMap[inviteRoom].createEvent(title, dailyStartTimes[0], dailyEndTimes[0], {
+            guests: inviteeCalendars.join(","), // Calendar emails as guests
+            sendInvites: true,
+            description: eventDescription,
+          });
+          roomCalendarMap[inviteRoom].createEventSeries(title, dailyStartTimes[1], dailyEndTimes[1], recurrenceRule, {
+            guests: inviteeCalendars.join(","), // Calendar emails as guests
+            sendInvites: true,
+            description: eventDescription,
+          });
+          roomCalendarMap[inviteRoom].createEvent(title, dailyStartTimes[2], dailyEndTimes[2], {
+            guests: inviteeCalendars.join(","), // Calendar emails as guests
+            sendInvites: true,
+            description: eventDescription,
+          });
         } else {
-          roomCalendarMap[inviteRoom].createEvent(
-            title,
-            dailyStartTimes[0],
-            dailyEndTimes[0],
-            {
-              guests: inviteeCalendars.join(","), // Calendar emails as guests
-              sendInvites: true,
-              description: eventDescription,
-            }
-          );
-          roomCalendarMap[inviteRoom].createEvent(
-            title,
-            dailyStartTimes[1],
-            dailyEndTimes[1],
-            {
-              guests: inviteeCalendars.join(","), // Calendar emails as guests
-              sendInvites: true,
-              description: eventDescription,
-            }
-          );
+          roomCalendarMap[inviteRoom].createEvent(title, dailyStartTimes[0], dailyEndTimes[0], {
+            guests: inviteeCalendars.join(","), // Calendar emails as guests
+            sendInvites: true,
+            description: eventDescription,
+          });
+          roomCalendarMap[inviteRoom].createEvent(title, dailyStartTimes[1], dailyEndTimes[1], {
+            guests: inviteeCalendars.join(","), // Calendar emails as guests
+            sendInvites: true,
+            description: eventDescription,
+          });
         }
       } else if (startDate > endDate) {
         isError = true;
         handleError(bookingInfoSheet, i);
       }
 
-      if (!isError)
-        bookingInfoSheet
-          .getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn())
-          .setBackground("white");
+      if (!isError) bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("white");
     } catch (error) {
       console.log(error);
 
@@ -432,9 +349,7 @@ function createCalendarEventsByCategory(
 }
 
 function handleError(bookingInfoSheet, i) {
-  bookingInfoSheet
-    .getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn())
-    .setBackground("red");
+  bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("red");
 }
 
 function getNetIDfromEmail(email) {
@@ -558,8 +473,7 @@ function getValidWeekdays(weeklyValues) {
 
 function getFirstValidWeekday(startDate, validWeekdays) {
   // Return the start date if no specific weekdays are set
-  if (!validWeekdays || validWeekdays.length === 0)
-    return { date: new Date(startDate), offset: 0 };
+  if (!validWeekdays || validWeekdays.length === 0) return { date: new Date(startDate), offset: 0 };
 
   let date = new Date(startDate);
   let offset = 0;
@@ -590,12 +504,7 @@ function skipEmptyRows(bookingInfoSheet, i) {
     return i;
   }
 
-  var row = bookingInfoSheet.getRange(
-    i + 2,
-    1,
-    numRows,
-    bookingInfoSheet.getLastColumn()
-  );
+  var row = bookingInfoSheet.getRange(i + 2, 1, numRows, bookingInfoSheet.getLastColumn());
 
   var rowData = row.getValues();
 
@@ -605,9 +514,7 @@ function skipEmptyRows(bookingInfoSheet, i) {
 
   if (rowIsEmpty) {
     if (backgrounds[0][0].toLowerCase() === "#ff0000") {
-      bookingInfoSheet
-        .getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn())
-        .setBackground("white");
+      bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("white");
     }
   }
 
@@ -617,9 +524,7 @@ function skipEmptyRows(bookingInfoSheet, i) {
     i++;
     if (i + 2 > bookingInfoSheet.getLastRow()) break;
     if (backgrounds[index][0].toLowerCase() === "#ff0000") {
-      bookingInfoSheet
-        .getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn())
-        .setBackground("white");
+      bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("white");
     }
 
     rowIsEmpty = checkRowData(rowData[index]);
@@ -632,11 +537,7 @@ function skipEmptyRows(bookingInfoSheet, i) {
 function checkRowData(rowData) {
   var isEmpty = true;
   for (let j = 0; j < rowData.length; j++) {
-    if (
-      rowData[j] != "" &&
-      rowData[j] != false &&
-      !String(rowData[j]).includes("N/A")
-    ) {
+    if (rowData[j] != "" && rowData[j] != false && !String(rowData[j]).includes("N/A")) {
       isEmpty = false;
     }
   }
@@ -645,10 +546,7 @@ function checkRowData(rowData) {
 }
 
 function deleteEventsByCategory(roomCalendar, category) {
-  const allEvents = roomCalendar.getEvents(
-    new Date("2000-01-01"),
-    new Date("2100-01-01")
-  );
+  const allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
 
   const uniqueEvents = new Map();
 
@@ -657,10 +555,7 @@ function deleteEventsByCategory(roomCalendar, category) {
     const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
     const eventDescription = event.getDescription();
 
-    if (
-      category !== null &&
-      !eventDescription.includes(`Category: ${category}`)
-    ) {
+    if (category !== null && !eventDescription.includes(`Category: ${category}`)) {
       continue;
     }
 
@@ -705,10 +600,7 @@ function daysOfWeekRecurrence(endDate, weeklyValues) {
     if (weeklyValues[i] == true) {
       daysOfWeek = false;
 
-      recurrence
-        .addWeeklyRule()
-        .onlyOnWeekday(weekIndexToWeekday(i))
-        .until(endDate);
+      recurrence.addWeeklyRule().onlyOnWeekday(weekIndexToWeekday(i)).until(endDate);
     }
   }
 
@@ -748,10 +640,7 @@ function getStartAndEndTimes(startDateCells, startTimeCells, endTimeCells) {
     }
     // Create start time by merging the start date with the start time
     let startTime = new Date(startDateCells[i]);
-    startTime.setHours(
-      startTimeCells[i].getHours(),
-      startTimeCells[i].getMinutes()
-    );
+    startTime.setHours(startTimeCells[i].getHours(), startTimeCells[i].getMinutes());
 
     // Create end time by merging the end date with the end time
     let endTime = new Date(startDateCells[i]);
@@ -813,9 +702,7 @@ function getDescriptionInfo(sheet, startColumn, endColumn) {
   const numberOfColumns = endColumnIndex - startColumnIndex + 1;
 
   // Get the range of values from the specified columns and rows
-  const dataRange = sheet
-    .getRange(1, startColumnIndex, sheet.getMaxRows(), numberOfColumns)
-    .getValues();
+  const dataRange = sheet.getRange(1, startColumnIndex, sheet.getMaxRows(), numberOfColumns).getValues();
 
   // Prepare the result: 2D array of concatenated strings
   const concatenatedData = [];
@@ -848,9 +735,7 @@ function getConcatenatedColumnData(sheet, startColumn, endColumn) {
   const numberOfColumns = endColumnIndex - startColumnIndex + 1;
 
   // Get the range of values from the specified columns and rows
-  const dataRange = sheet
-    .getRange(1, startColumnIndex, sheet.getMaxRows(), numberOfColumns)
-    .getValues();
+  const dataRange = sheet.getRange(1, startColumnIndex, sheet.getMaxRows(), numberOfColumns).getValues();
 
   // Prepare the result: 2D array of concatenated strings
   const concatenatedData = [];

@@ -15,8 +15,7 @@ function onEdit(e) {
 
   const sheet = bookingInfoSheet[1];
 
-  const roomInfoSheet =
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("RoomInfo");
+  const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("RoomInfo");
 
   const editedCell = e.range;
 
@@ -39,13 +38,7 @@ function onEdit(e) {
   } else if (editedCell.getColumn() === recurring) {
     handleEdit(row, newValue, recurring, sheet, roomInfoSheet, "");
   } else if (timeEdit.includes(editedCell.getColumn())) {
-    deleteEdit(
-      row,
-      recurring,
-      editedCell.getColumn(),
-      sheet,
-      "Recurring Weekly Not Selected"
-    );
+    deleteEdit(row, recurring, editedCell.getColumn(), sheet, "Recurring Weekly Not Selected");
   }
 }
 
@@ -57,14 +50,7 @@ function deleteEdit(row, referenceColumn, column, sheet, message) {
   handleDelete(targetColumns, row, sheet, column, referenceValue, message);
 }
 
-function handleDelete(
-  targetColumns,
-  row,
-  sheet,
-  column,
-  referenceValue,
-  message
-) {
+function handleDelete(targetColumns, row, sheet, column, referenceValue, message) {
   targetColumns.push(column);
   if (referenceValue == false) {
     removeDropdowns(targetColumns, row, sheet, message);
@@ -141,13 +127,7 @@ function removeDropdowns(targetColumns, row, sheet, message) {
   }
 }
 
-function restoreDropdowns(
-  restoreColumns,
-  sourceRanges,
-  row,
-  sheet,
-  roomInfoSheet
-) {
+function restoreDropdowns(restoreColumns, sourceRanges, row, sheet, roomInfoSheet) {
   for (let j = 0; j < sourceRanges.length; j++) {
     var sourceRange = roomInfoSheet.getRange(sourceRanges[j]);
     var restoreRange = sheet.getRange(row, restoreColumns[j]);
