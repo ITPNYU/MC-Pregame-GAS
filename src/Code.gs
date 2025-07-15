@@ -112,22 +112,24 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
   var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "H", "S");
   var departments = getColumnValues(bookingInfoSheet, "D2:D");
   var reservationCategories = getColumnValues(bookingInfoSheet, "E2:E"); // Column E for Reservation Category
-  var descriptionInfo = getDescriptionInfo(bookingInfoSheet, "AD", "AM");
   var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "U", "Y");
   var expectedAttendance = getColumnValues(bookingInfoSheet, "AD2:AD");
-  var audioLabStaffNeeded = getColumnValues(bookingInfoSheet, "AE2:AE");
-  var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AF2:AF");
-  var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AG2:AG");
-  var equipmentNeeded = getColumnValues(bookingInfoSheet, "AH2:AH");
-  var cateringNeeded = getColumnValues(bookingInfoSheet, "AI2:AI");
-  var cleaningNeeded = getColumnValues(bookingInfoSheet, "AJ2:AJ");
-  var roomSetupNeeded = getColumnValues(bookingInfoSheet, "AK2:AK");
+
+  var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AE2:AE");
+  var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AF2:AF");
+  var audioLabStaffNeeded = getColumnValues(bookingInfoSheet, "AG2:AG");
+
+  var roomSetupNeeded = getColumnValues(bookingInfoSheet, "AH2:AH");
+  var equipmentNeeded = getColumnValues(bookingInfoSheet, "AI2:AI");
+  var cateringNeeded = getColumnValues(bookingInfoSheet, "AJ2:AJ");
+  var cleaningNeeded = getColumnValues(bookingInfoSheet, "AK2:AK");
   var campusSecurityNeeded = getColumnValues(bookingInfoSheet, "AL2:AL");
+
   var briefDescription = getColumnValues(bookingInfoSheet, "AM2:AM");
 
   var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
-  var startTimeCells = getColumnValues(bookingInfoSheet, "AA2:AA");
-  var endDateCells = getColumnValues(bookingInfoSheet, "AB2:AB");
+  var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
+  var startTimeCells = getColumnValues(bookingInfoSheet, "AB2:AB");
   var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
   var isRecurring = getColumnValues(bookingInfoSheet, "T2:T");
 
