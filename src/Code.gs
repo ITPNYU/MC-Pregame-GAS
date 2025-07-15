@@ -5,10 +5,9 @@ const PRODUCTION_CALENDAR_IDS_SHEET_NAME = "CalendarIdsProduction";
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the user interface
   const email = Session.getActiveUser().getEmail();
-  if (isAdmin(email)) {
-    createDevTeamMenu(ui);
-    createAdminMenu(ui);
-  } else if (isDevTeam(email)) createDevTeamMenu(ui);
+  if (isDevTeam(email) || isAdmin(email)) {
+    createPregameMenu(ui);
+  }
 }
 
 function isDevTeam(email) {
@@ -21,24 +20,34 @@ function isAdmin(email) {
   return adminTeam.includes(email);
 }
 
-function createDevTeamMenu(ui) {
-  ui.createMenu("Pregame (Dev)")
-    .addItem("Write all Class rows to Pregame Calendars", "writeClassesToPregame")
-    .addItem("Write all Event rows to Pregame Calendars", "writeEventsToPregame")
-    .addItem("Delete all classes from Pregame Calendar", "deleteClassesFromPregame")
-    .addItem("Delete all events from Pregame Calendar", "deleteEventsFromPregame")
-    .addItem("Write all Pregame Calendar events and classes to Draft", "writeEventsToDraft")
-    .addToUi();
-}
+function createPregameMenu(ui) {
+  const menu = ui.createMenu("Pregame");
 
-function createAdminMenu(ui) {
-  ui.createMenu("Pregame")
-    .addItem("Write all Class rows to Draft Calendars", "writeClassesToDraft")
-    .addItem("Write all Event rows to Draft Calendars", "writeEventsToDraft")
-    .addItem("Delete all classes from Draft Calendar", "deleteClassesFromDraft")
-    .addItem("Delete all events from Draft Calendar", "deleteEventsFromDraft")
-    .addItem("Write all Draft Calendar events and classes to Production", "writeEventsToProduction")
-    .addToUi();
+  // Production section
+  menu.addSubMenu(
+    ui
+      .createMenu("Production")
+      .addItem("Write all rows with category: Class to Draft calendars", "writeClassesToDraft")
+      .addItem("Write all rows with category: Event to Draft calendars", "writeEventsToDraft")
+      .addItem("Write all Draft calendars content to Production calendars", "writeEventsToProduction")
+      .addItem("Delete all category: Class events from Draft calendars", "deleteClassesFromDraft")
+      .addItem("Delete all category: Event events from Draft calendars", "deleteEventsFromDraft")
+      .addItem("Delete all Draft calendars content", "deleteAllFromDraft")
+  );
+
+  // Development section
+  menu.addSubMenu(
+    ui
+      .createMenu("Development")
+      .addItem("Write all rows with category: Class to Pregame calendars", "writeClassesToPregame")
+      .addItem("Write all rows with category: Event to Pregame calendars", "writeEventsToPregame")
+      .addItem("Write all Pregame calendars content to Draft calendars", "writeEventsToDraft")
+      .addItem("Delete all Category: Class events from Pregame calendars", "deleteClassesFromPregame")
+      .addItem("Delete all Category: Event events from Pregame calendars", "deleteEventsFromPregame")
+      .addItem("Delete all Pregame calendars content", "deleteAllFromPregame")
+  );
+
+  menu.addToUi();
 }
 
 function writeClassesToPregame() {
@@ -80,6 +89,14 @@ function deleteClassesFromDraft() {
 
 function deleteEventsFromDraft() {
   deleteCalendarEventsByCategory(DRAFT_CALENDAR_IDS_SHEET_NAME, "Event");
+}
+
+function deleteAllFromDraft() {
+  deleteCalendarEventsByCategory(DRAFT_CALENDAR_IDS_SHEET_NAME, null);
+}
+
+function deleteAllFromPregame() {
+  deleteCalendarEventsByCategory(PREGAME_CALENDAR_IDS_SHEET_NAME, null);
 }
 
 function pushToCalendarByCategory(eventsWillDelete, calendarInfoSheetName, category) {
