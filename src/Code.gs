@@ -617,36 +617,42 @@ function checkRowData(rowData) {
 }
 
 function deleteEventsByCategory(roomCalendar, category) {
-  const allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
+  let count = 0;
+  let allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
 
-  const uniqueEvents = new Map();
+  while (allEvents.length > 0 && count < 10) {
+    count++;
+    const uniqueEvents = new Map();
 
-  for (let i = allEvents.length - 1; i >= 0; i--) {
-    const event = allEvents[i];
-    const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
-    const eventDescription = event.getDescription();
+    for (let i = allEvents.length - 1; i >= 0; i--) {
+      const event = allEvents[i];
+      const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
+      const eventDescription = event.getDescription();
 
-    if (category !== null && !eventDescription.includes(`Category: ${category}`)) {
-      continue;
-    }
+      if (category !== null && !eventDescription.includes(`Category: ${category}`)) {
+        continue;
+      }
 
-    try {
-      if (!uniqueEvents.has(eventKey)) {
-        // Add to unique map and delete it
-        uniqueEvents.set(eventKey, true);
+      try {
+        if (!uniqueEvents.has(eventKey)) {
+          // Add to unique map and delete it
+          uniqueEvents.set(eventKey, true);
 
-        if (event.isRecurringEvent()) {
-          // Delete the entire recurring series
-          event.getEventSeries().deleteEventSeries();
+          if (event.isRecurringEvent()) {
+            // Delete the entire recurring series
+            event.getEventSeries().deleteEventSeries();
+          } else {
+            // Delete single non-recurring events
+            event.deleteEvent();
+          }
         } else {
-          // Delete single non-recurring events
+          // If it's a duplicate event, try deleting it directly
           event.deleteEvent();
         }
-      } else {
-        // If it's a duplicate event, try deleting it directly
-        event.deleteEvent();
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
+
+    allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
   }
 }
 
