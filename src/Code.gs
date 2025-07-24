@@ -387,6 +387,7 @@ function validateBookingData(calendarInfoSheetName, showAlert) {
   var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
   var startTimeCells = getColumnValues(bookingInfoSheet, "AB2:AB");
   var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
+  var isRecurring = getColumnValues(bookingInfoSheet, "T2:T");
 
   let hasError = false;
   let errorRows = [];
@@ -401,6 +402,14 @@ function validateBookingData(calendarInfoSheetName, showAlert) {
     let startDate = new Date(startDateCells[i]);
     let endDate = new Date(endDateCells[i]);
     if (startDate > endDate) missing.push("Start Date > End Date");
+    // Additional validation for recurring events: start time must be before end time
+    if (isRecurring && isRecurring[i]) {
+      if (startTimeCells[i] && endTimeCells[i] && startTimeCells[i].getTime && endTimeCells[i].getTime) {
+        if (startTimeCells[i].getTime() >= endTimeCells[i].getTime()) {
+          missing.push("Recurring: Start Time must be before End Time");
+        }
+      }
+    }
     if (missing.length > 0) {
       hasError = true;
       errorRows.push(i + 2);
