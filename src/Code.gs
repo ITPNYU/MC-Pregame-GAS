@@ -242,13 +242,13 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       (requesterNetID ? requesterNetID : "none") +
       "<br/>" +
       "• Name: " +
-      (reservationContacts[i] ? reservationContacts[i] : "") +
+      (reservationContacts[i] ? reservationContacts[i] : "none") +
       "<br/>" +
       "• Department: " +
-      (departments[i] ? departments[i] : "") +
+      (departments[i] ? departments[i] : "none") +
       "<br/>" +
       "• Email: " +
-      (requesterEmails[i] ? requesterEmails[i] : "") +
+      (requesterEmails[i] ? requesterEmails[i] : "none") +
       "<br/>" +
       "• Phone: " +
       "none" +
@@ -264,19 +264,19 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "<br/><b>Details</b><br/>" +
       "• Title: " +
-      (eventTitles[i] ? eventTitles[i] : "") +
+      (eventTitles[i] ? eventTitles[i] : "none") +
       "<br/>" +
       "• Description: " +
-      (briefDescription[i] ? briefDescription[i] : "") +
+      (briefDescription[i] ? briefDescription[i] : "none") +
       "<br/>" +
       "• Category: " +
-      (reservationCategories[i] ? reservationCategories[i] : "") +
+      (reservationCategories[i] ? reservationCategories[i] : "none") +
       "<br/>" +
       "• Reservation Type: " +
       "none" +
       "<br/>" +
       "• Expected Attendance: " +
-      (expectedAttendance[i] ? expectedAttendance[i] : "") +
+      (expectedAttendance[i] ? expectedAttendance[i] : "none") +
       "<br/>" +
       "• Attendee Affiliation: " +
       "none" +
@@ -285,10 +285,10 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "<br/><b>Services</b><br/>" +
       "• Room Setup: " +
-      (roomSetupNeeded[i] ? roomSetupNeeded[i] : "") +
+      (roomSetupNeeded[i] ? roomSetupNeeded[i] : "none") +
       "<br/>" +
       "• Equipment: " +
-      (equipmentNeeded[i] ? "Equipment" : "") +
+      (equipmentNeeded[i] ? "Equipment" : "none") +
       "<br/>" +
       "• Staffing: " +
       ([
@@ -300,13 +300,13 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
         .join(", ") || "none") +
       "<br/>" +
       "• Catering: " +
-      (cateringNeeded[i] ? cateringNeeded[i] : "") +
+      (cateringNeeded[i] ? cateringNeeded[i] : "none") +
       "<br/>" +
       "• Cleaning: " +
-      (cleaningNeeded[i] ? cleaningNeeded[i] : "") +
+      (cleaningNeeded[i] ? cleaningNeeded[i] : "none") +
       "<br/>" +
       "• Security: " +
-      (campusSecurityNeeded[i] ? campusSecurityNeeded[i] : "") +
+      (campusSecurityNeeded[i] ? campusSecurityNeeded[i] : "none") +
       "<br/>" +
       "<br/><b>Cancellation Policy</b><br/>" +
       "To cancel reservations please return to the Booking Tool, visit My Bookings, and click 'cancel' on the booking at least 24 hours before the date of the event. Failure to cancel an unused booking is considered a no-show and may result in restricted use of the space.";
@@ -446,10 +446,10 @@ function getLongEventInfo(startDate, endDate, startTime, endTime) {
   let numberOfDays = differenceInDays + 1;
 
   let newStartTime = new Date(startDate); // Clone the start date for the end date
-  newStartTime.setHours(0, 0, 0, 0); // Set to 00:00:00:00 AM
+  newStartTime.setHours(0, 1, 0, 0); // Set to 00:01:00:00 AM
 
   let newEndTime = new Date(startDate); // Clone the start date for the end date
-  newEndTime.setHours(23, 59, 59, 999); // Set to 11:59:59.999 PM
+  newEndTime.setHours(23, 59, 0, 0); // Set to 11:59:00:000 PM
 
   dailyStartTimes.push(new Date(startTime));
   dailyEndTimes.push(new Date(newEndTime)); // Add to dailyEndTimes
@@ -617,36 +617,42 @@ function checkRowData(rowData) {
 }
 
 function deleteEventsByCategory(roomCalendar, category) {
-  const allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
+  let count = 0;
+  let allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
 
-  const uniqueEvents = new Map();
+  while (allEvents.length > 0 && count < 10) {
+    count++;
+    const uniqueEvents = new Map();
 
-  for (let i = allEvents.length - 1; i >= 0; i--) {
-    const event = allEvents[i];
-    const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
-    const eventDescription = event.getDescription();
+    for (let i = allEvents.length - 1; i >= 0; i--) {
+      const event = allEvents[i];
+      const eventKey = `${event.getTitle()}-${event.getStartTime()}`;
+      const eventDescription = event.getDescription();
 
-    if (category !== null && !eventDescription.includes(`Category: ${category}`)) {
-      continue;
-    }
+      if (category !== null && !eventDescription.includes(`Category: ${category}`)) {
+        continue;
+      }
 
-    try {
-      if (!uniqueEvents.has(eventKey)) {
-        // Add to unique map and delete it
-        uniqueEvents.set(eventKey, true);
+      try {
+        if (!uniqueEvents.has(eventKey)) {
+          // Add to unique map and delete it
+          uniqueEvents.set(eventKey, true);
 
-        if (event.isRecurringEvent()) {
-          // Delete the entire recurring series
-          event.getEventSeries().deleteEventSeries();
+          if (event.isRecurringEvent()) {
+            // Delete the entire recurring series
+            event.getEventSeries().deleteEventSeries();
+          } else {
+            // Delete single non-recurring events
+            event.deleteEvent();
+          }
         } else {
-          // Delete single non-recurring events
+          // If it's a duplicate event, try deleting it directly
           event.deleteEvent();
         }
-      } else {
-        // If it's a duplicate event, try deleting it directly
-        event.deleteEvent();
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
+
+    allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));
   }
 }
 
