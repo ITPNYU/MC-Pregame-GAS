@@ -242,13 +242,13 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       (requesterNetID ? requesterNetID : "none") +
       "<br/>" +
       "• Name: " +
-      (reservationContacts[i] ? reservationContacts[i] : "") +
+      (reservationContacts[i] ? reservationContacts[i] : "none") +
       "<br/>" +
       "• Department: " +
-      (departments[i] ? departments[i] : "") +
+      (departments[i] ? departments[i] : "none") +
       "<br/>" +
       "• Email: " +
-      (requesterEmails[i] ? requesterEmails[i] : "") +
+      (requesterEmails[i] ? requesterEmails[i] : "none") +
       "<br/>" +
       "• Phone: " +
       "none" +
@@ -264,19 +264,19 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "<br/><b>Details</b><br/>" +
       "• Title: " +
-      (eventTitles[i] ? eventTitles[i] : "") +
+      (eventTitles[i] ? eventTitles[i] : "none") +
       "<br/>" +
       "• Description: " +
-      (briefDescription[i] ? briefDescription[i] : "") +
+      (briefDescription[i] ? briefDescription[i] : "none") +
       "<br/>" +
       "• Category: " +
-      (reservationCategories[i] ? reservationCategories[i] : "") +
+      (reservationCategories[i] ? reservationCategories[i] : "none") +
       "<br/>" +
       "• Reservation Type: " +
       "none" +
       "<br/>" +
       "• Expected Attendance: " +
-      (expectedAttendance[i] ? expectedAttendance[i] : "") +
+      (expectedAttendance[i] ? expectedAttendance[i] : "none") +
       "<br/>" +
       "• Attendee Affiliation: " +
       "none" +
@@ -285,10 +285,10 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "<br/><b>Services</b><br/>" +
       "• Room Setup: " +
-      (roomSetupNeeded[i] ? roomSetupNeeded[i] : "") +
+      (roomSetupNeeded[i] ? roomSetupNeeded[i] : "none") +
       "<br/>" +
       "• Equipment: " +
-      (equipmentNeeded[i] ? "Equipment" : "") +
+      (equipmentNeeded[i] ? "Equipment" : "none") +
       "<br/>" +
       "• Staffing: " +
       ([
@@ -300,13 +300,13 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
         .join(", ") || "none") +
       "<br/>" +
       "• Catering: " +
-      (cateringNeeded[i] ? cateringNeeded[i] : "") +
+      (cateringNeeded[i] ? cateringNeeded[i] : "none") +
       "<br/>" +
       "• Cleaning: " +
-      (cleaningNeeded[i] ? cleaningNeeded[i] : "") +
+      (cleaningNeeded[i] ? cleaningNeeded[i] : "none") +
       "<br/>" +
       "• Security: " +
-      (campusSecurityNeeded[i] ? campusSecurityNeeded[i] : "") +
+      (campusSecurityNeeded[i] ? campusSecurityNeeded[i] : "none") +
       "<br/>" +
       "<br/><b>Cancellation Policy</b><br/>" +
       "To cancel reservations please return to the Booking Tool, visit My Bookings, and click 'cancel' on the booking at least 24 hours before the date of the event. Failure to cancel an unused booking is considered a no-show and may result in restricted use of the space.";
