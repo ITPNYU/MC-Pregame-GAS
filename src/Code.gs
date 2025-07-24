@@ -446,10 +446,10 @@ function getLongEventInfo(startDate, endDate, startTime, endTime) {
   let numberOfDays = differenceInDays + 1;
 
   let newStartTime = new Date(startDate); // Clone the start date for the end date
-  newStartTime.setHours(0, 0, 0, 0); // Set to 00:00:00:00 AM
+  newStartTime.setHours(0, 1, 0, 0); // Set to 00:01:00:00 AM
 
   let newEndTime = new Date(startDate); // Clone the start date for the end date
-  newEndTime.setHours(23, 59, 59, 999); // Set to 11:59:59.999 PM
+  newEndTime.setHours(23, 59, 0, 0); // Set to 11:59:00:000 PM
 
   dailyStartTimes.push(new Date(startTime));
   dailyEndTimes.push(new Date(newEndTime)); // Add to dailyEndTimes
