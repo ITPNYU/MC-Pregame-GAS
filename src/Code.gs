@@ -27,6 +27,7 @@ function createPregameMenu(ui) {
   menu.addSubMenu(
     ui
       .createMenu("Production")
+      .addItem("Validate", "validateAllForProduction")
       .addItem("Write all rows with category: Class to Draft calendars", "writeClassesToDraft")
       .addItem("Write all rows with category: Event to Draft calendars", "writeEventsToDraft")
       .addItem("Write all Draft calendars content to Production calendars", "writeEventsToProduction")
@@ -39,6 +40,7 @@ function createPregameMenu(ui) {
   menu.addSubMenu(
     ui
       .createMenu("Development")
+      .addItem("Validate", "validateAllForPregame")
       .addItem("Write all rows with category: Class to Pregame calendars", "writeClassesToPregame")
       .addItem("Write all rows with category: Event to Pregame calendars", "writeEventsToPregame")
       .addItem("Write all Pregame calendars content to Draft calendars", "writeEventsToDraft")
@@ -48,6 +50,13 @@ function createPregameMenu(ui) {
   );
 
   menu.addToUi();
+}
+
+function validateAllForPregame() {
+  validateBookingData(PREGAME_CALENDAR_IDS_SHEET_NAME, true);
+}
+function validateAllForProduction() {
+  validateBookingData(DRAFT_CALENDAR_IDS_SHEET_NAME, true);
 }
 
 function writeClassesToPregame() {
@@ -99,7 +108,9 @@ function deleteAllFromPregame() {
   deleteCalendarEventsByCategory(PREGAME_CALENDAR_IDS_SHEET_NAME, null);
 }
 
+// --- INTEGRATE VALIDATION INTO PUSH ---
 function pushToCalendarByCategory(eventsWillDelete, calendarInfoSheetName, category) {
+  if (!validateBookingData(calendarInfoSheetName, false)) return;
   const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(calendarInfoSheetName);
   const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
   createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet[1], eventsWillDelete, category);
@@ -365,6 +376,47 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       handleError(bookingInfoSheet, i);
     }
   }
+}
+
+function validateBookingData(calendarInfoSheetName, showAlert) {
+  if (showAlert === undefined) showAlert = false;
+  const ui = SpreadsheetApp.getUi();
+  const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[1];
+
+  var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
+  var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
+  var startTimeCells = getColumnValues(bookingInfoSheet, "AB2:AB");
+  var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
+
+  let hasError = false;
+  let errorRows = [];
+  for (let i = 0; i + 1 < bookingInfoSheet.getMaxRows(); i++) {
+    i = skipEmptyRows(bookingInfoSheet, i);
+    if (i + 2 > bookingInfoSheet.getMaxRows()) break;
+    let missing = [];
+    if (!startDateCells[i] || isNaN(new Date(startDateCells[i]))) missing.push("Start Date");
+    if (!endDateCells[i] || isNaN(new Date(endDateCells[i]))) missing.push("End Date");
+    if (!startTimeCells[i] || !startTimeCells[i].getHours) missing.push("Start Time");
+    if (!endTimeCells[i] || !endTimeCells[i].getHours) missing.push("End Time");
+    let startDate = new Date(startDateCells[i]);
+    let endDate = new Date(endDateCells[i]);
+    if (startDate > endDate) missing.push("Start Date > End Date");
+    if (missing.length > 0) {
+      hasError = true;
+      errorRows.push(i + 2);
+      bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("red");
+    } else {
+      bookingInfoSheet.getRange(i + 2, 1, 1, bookingInfoSheet.getLastColumn()).setBackground("white");
+    }
+  }
+  if (hasError) {
+    ui.alert("Validation failed! Check rows: " + errorRows.join(", "));
+  } else {
+    if (showAlert) {
+      ui.alert("Validation passed!");
+    }
+  }
+  return !hasError;
 }
 
 function handleError(bookingInfoSheet, i) {
