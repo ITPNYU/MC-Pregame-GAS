@@ -165,6 +165,8 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
   var roomCalendarIds = getRoomColumnValues(roomInfoSheet, "B:B");
   var roomNumbers = getRoomColumnValues(roomInfoSheet, "C:C");
 
+  var bookingTypes = getColumnValues(bookingInfoSheet, "F2:F");
+
   var roomNumberMap = createIDHashMap(roomNames, roomNumbers);
   const roomCalendarMap = createHashMap(roomNames, roomCalendarIds);
   const roomCalendarIDMap = createIDHashMap(roomNames, roomCalendarIds);
@@ -268,6 +270,9 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "• Description: " +
       (briefDescription[i] ? briefDescription[i] : "none") +
+      "<br/>" +
+      "• Booking Type: " +
+      (bookingTypes[i] ? bookingTypes[i] : "none") +
       "<br/>" +
       "• Category: " +
       (reservationCategories[i] ? reservationCategories[i] : "none") +
