@@ -445,7 +445,7 @@ function isBookingSheetFormatValid(sheet) {
   if (!sheet) return false;
 
   // Script reads through column AM; fail fast if active sheet does not have enough columns.
-  if (sheet.getLastColumn() < columnLetterToIndex("AM")) return false;
+  if (sheet.getMaxColumns() < columnLetterToIndex("AM")) return false;
 
   const requiredHeaderColumns = ["A", "B", "E", "G", "H", "T", "Z", "AA", "AB", "AC"];
 
