@@ -1,6 +1,7 @@
 const PREGAME_CALENDAR_IDS_SHEET_NAME = "CalendarIdsPregame";
 const DRAFT_CALENDAR_IDS_SHEET_NAME = "CalendarIdsDraft";
 const PRODUCTION_CALENDAR_IDS_SHEET_NAME = "CalendarIdsProduction";
+const CALENDAR_EVENT_TITLE_PREFIX = "[Pregame]";
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the user interface
@@ -227,7 +228,8 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       }
     }
 
-    const title = numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
+    const baseTitle = numberArray.join(", ") + "  " + departments[i] + "  " + eventTitles[i];
+    const title = `${CALENDAR_EVENT_TITLE_PREFIX} ${baseTitle}`;
 
     const requesterNetID = getNetIDfromEmail(requesterEmails[i]);
 
