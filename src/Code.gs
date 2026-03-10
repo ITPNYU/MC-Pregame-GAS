@@ -54,10 +54,10 @@ function createPregameMenu(ui) {
 }
 
 function validateAllForPregame() {
-  validateBookingData(PREGAME_CALENDAR_IDS_SHEET_NAME, true);
+  validateBookingData(true);
 }
 function validateAllForProduction() {
-  validateBookingData(DRAFT_CALENDAR_IDS_SHEET_NAME, true);
+  validateBookingData(true);
 }
 
 function writeClassesToPregame() {
@@ -111,10 +111,10 @@ function deleteAllFromPregame() {
 
 // --- INTEGRATE VALIDATION INTO PUSH ---
 function pushToCalendarByCategory(eventsWillDelete, calendarInfoSheetName, category) {
-  if (!validateBookingData(calendarInfoSheetName, false)) return;
+  if (!validateBookingData(false)) return;
   const roomInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(calendarInfoSheetName);
-  const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet[1], eventsWillDelete, category);
+  const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsWillDelete, category);
 }
 
 function deleteCalendarEventsByCategory(calendarInfoSheetName, category) {
@@ -385,10 +385,18 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
   }
 }
 
-function validateBookingData(calendarInfoSheetName, showAlert) {
+function validateBookingData(showAlert) {
   if (showAlert === undefined) showAlert = false;
   const ui = SpreadsheetApp.getUi();
-  const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[1];
+  const bookingInfoSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  if (!isBookingSheetFormatValid(bookingInfoSheet)) {
+    ui.alert(
+      "The active sheet does not match the required booking format.\n\n" +
+        "Please select a valid booking sheet and try again."
+    );
+    return false;
+  }
 
   var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
   var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
@@ -433,6 +441,23 @@ function validateBookingData(calendarInfoSheetName, showAlert) {
     }
   }
   return !hasError;
+}
+
+function isBookingSheetFormatValid(sheet) {
+  if (!sheet) return false;
+
+  // Script reads through column AM; fail fast if active sheet does not have enough columns.
+  if (sheet.getMaxColumns() < columnLetterToIndex("AM")) return false;
+
+  const requiredHeaderColumns = ["A", "B", "E", "G", "H", "T", "Z", "AA", "AB", "AC"];
+
+  for (let i = 0; i < requiredHeaderColumns.length; i++) {
+    const columnIndex = columnLetterToIndex(requiredHeaderColumns[i]);
+    const headerValue = sheet.getRange(1, columnIndex).getValue();
+    if (headerValue === "") return false;
+  }
+
+  return true;
 }
 
 function handleError(bookingInfoSheet, i) {
