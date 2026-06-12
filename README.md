@@ -103,3 +103,6 @@ The project is configured for:
 
 - Administrative functions are restricted to authorized users
 - Menu items appear only for authorized email addresses
+
+## Recent Updates
+- Fixed a bug where bookings longer than 5 days were missing the 4th day on the calendar due to the recurrence rule ending prematurely at midnight.
