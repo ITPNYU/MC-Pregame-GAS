@@ -504,6 +504,7 @@ function getLongEventInfo(startDate, endDate, startTime, endTime) {
 
     let recurrenceEndDate = new Date(endDate);
     recurrenceEndDate.setDate(recurrenceEndDate.getDate() - 1);
+    recurrenceEndDate.setHours(23, 59, 59, 999);
 
     recurrenceRule = CalendarApp.newRecurrence();
 
