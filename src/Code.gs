@@ -137,36 +137,36 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
 
   var reservationContacts = getColumnValues(bookingInfoSheet, "A2:A");
   var requesterEmails = getColumnValues(bookingInfoSheet, "B2:B");
-  var eventTitles = getColumnValues(bookingInfoSheet, "G2:G");
-  var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "H", "S");
+  var eventTitles = getColumnValues(bookingInfoSheet, "J2:J");
+  var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "K", "AA");
   var departments = getColumnValues(bookingInfoSheet, "D2:D");
-  var reservationCategories = getColumnValues(bookingInfoSheet, "E2:E"); // Column E for Reservation Category
-  var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "U", "Y");
-  var expectedAttendance = getColumnValues(bookingInfoSheet, "AD2:AD");
+  var reservationCategories = getColumnValues(bookingInfoSheet, "H2:H"); // Column H for Reservation Category
+  var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "AC", "AG");
+  var expectedAttendance = getColumnValues(bookingInfoSheet, "AL2:AL");
 
-  var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AE2:AE");
-  var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AF2:AF");
-  var audioLabStaffNeeded = getColumnValues(bookingInfoSheet, "AG2:AG");
+  var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AN2:AN");
+  var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AO2:AO");
+  var audioLabStaffNeeded = getColumnValues(bookingInfoSheet, "AP2:AP");
 
-  var roomSetupNeeded = getColumnValues(bookingInfoSheet, "AH2:AH");
-  var equipmentNeeded = getColumnValues(bookingInfoSheet, "AI2:AI");
-  var cateringNeeded = getColumnValues(bookingInfoSheet, "AJ2:AJ");
-  var cleaningNeeded = getColumnValues(bookingInfoSheet, "AK2:AK");
-  var campusSecurityNeeded = getColumnValues(bookingInfoSheet, "AL2:AL");
+  var roomSetupNeeded = getColumnValues(bookingInfoSheet, "AQ2:AQ");
+  var equipmentNeeded = getColumnValues(bookingInfoSheet, "AR2:AR");
+  var cateringNeeded = getColumnValues(bookingInfoSheet, "AS2:AS");
+  var cleaningNeeded = getColumnValues(bookingInfoSheet, "AT2:AT");
+  var campusSecurityNeeded = getColumnValues(bookingInfoSheet, "AU2:AU");
 
-  var briefDescription = getColumnValues(bookingInfoSheet, "AM2:AM");
+  var briefDescription = getColumnValues(bookingInfoSheet, "AV2:AV");
 
-  var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
-  var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
-  var startTimeCells = getColumnValues(bookingInfoSheet, "AB2:AB");
-  var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
-  var isRecurring = getColumnValues(bookingInfoSheet, "T2:T");
+  var startDateCells = getColumnValues(bookingInfoSheet, "AH2:AH");
+  var endDateCells = getColumnValues(bookingInfoSheet, "AI2:AI");
+  var startTimeCells = getColumnValues(bookingInfoSheet, "AJ2:AJ");
+  var endTimeCells = getColumnValues(bookingInfoSheet, "AK2:AK");
+  var isRecurring = getColumnValues(bookingInfoSheet, "AB2:AB");
 
   var roomNames = getRoomColumnValues(roomInfoSheet, "A:A");
   var roomCalendarIds = getRoomColumnValues(roomInfoSheet, "B:B");
   var roomNumbers = getRoomColumnValues(roomInfoSheet, "C:C");
 
-  var bookingTypes = getColumnValues(bookingInfoSheet, "F2:F");
+  var bookingTypes = getColumnValues(bookingInfoSheet, "I2:I");
 
   var roomNumberMap = createIDHashMap(roomNames, roomNumbers);
   const roomCalendarMap = createHashMap(roomNames, roomCalendarIds);
@@ -393,16 +393,16 @@ function validateBookingData(showAlert) {
   if (!isBookingSheetFormatValid(bookingInfoSheet)) {
     ui.alert(
       "The active sheet does not match the required booking format.\n\n" +
-        "Please select a valid booking sheet and try again."
+      "Please select a valid booking sheet and try again."
     );
     return false;
   }
 
-  var startDateCells = getColumnValues(bookingInfoSheet, "Z2:Z");
-  var endDateCells = getColumnValues(bookingInfoSheet, "AA2:AA");
-  var startTimeCells = getColumnValues(bookingInfoSheet, "AB2:AB");
-  var endTimeCells = getColumnValues(bookingInfoSheet, "AC2:AC");
-  var isRecurring = getColumnValues(bookingInfoSheet, "T2:T");
+  var startDateCells = getColumnValues(bookingInfoSheet, "AH2:AH");
+  var endDateCells = getColumnValues(bookingInfoSheet, "AI2:AI");
+  var startTimeCells = getColumnValues(bookingInfoSheet, "AJ2:AJ");
+  var endTimeCells = getColumnValues(bookingInfoSheet, "AK2:AK");
+  var isRecurring = getColumnValues(bookingInfoSheet, "AB2:AB");
 
   let hasError = false;
   let errorRows = [];
@@ -446,10 +446,10 @@ function validateBookingData(showAlert) {
 function isBookingSheetFormatValid(sheet) {
   if (!sheet) return false;
 
-  // Script reads through column AM; fail fast if active sheet does not have enough columns.
-  if (sheet.getMaxColumns() < columnLetterToIndex("AM")) return false;
+  // Script reads through column AV; fail fast if active sheet does not have enough columns.
+  if (sheet.getMaxColumns() < columnLetterToIndex("AV")) return false;
 
-  const requiredHeaderColumns = ["A", "B", "E", "G", "H", "T", "Z", "AA", "AB", "AC"];
+  const requiredHeaderColumns = ["A", "B", "H", "J", "K", "AB", "AH", "AI", "AJ", "AK"];
 
   for (let i = 0; i < requiredHeaderColumns.length; i++) {
     const columnIndex = columnLetterToIndex(requiredHeaderColumns[i]);
@@ -691,7 +691,7 @@ function deleteEventsByCategory(roomCalendar, category) {
           // If it's a duplicate event, try deleting it directly
           event.deleteEvent();
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     allEvents = roomCalendar.getEvents(new Date("2000-01-01"), new Date("2100-01-01"));

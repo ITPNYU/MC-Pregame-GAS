@@ -1,20 +1,20 @@
-const garage = 8; // Column H
-const audioLab = 16; // Column P
-const garageLightingNeeds = 31; // Column AE
-const garageAudioNeeds = 32; // Column AF
-const audioLabNeeds = 33; // Column AG
-const recurring = 20; // Column T
-const recurringOnMonday = 21; // Column U
-const recurringOnTuesday = 22; // Column V
-const recurringOnWednesday = 23; // Column W
-const recurringOnThursday = 24; // Column X
-const recurringOnFriday = 25; // Column Y
+const garage = 11; // Column K
+const audioLab = 21; // Column U
+const garageLightingNeeds = 40; // Column AN
+const garageAudioNeeds = 41; // Column AO
+const audioLabNeeds = 42; // Column AP
+const recurring = 28; // Column AB
+const recurringOnMonday = 29; // Column AC
+const recurringOnTuesday = 30; // Column AD
+const recurringOnWednesday = 31; // Column AE
+const recurringOnThursday = 32; // Column AF
+const recurringOnFriday = 33; // Column AG
 const timeEdit = [
-  recurringOnMonday, // Column U
-  recurringOnTuesday, // Column V
-  recurringOnWednesday, // Column W
-  recurringOnThursday, // Column X
-  recurringOnFriday, // Column Y
+  recurringOnMonday, // Column AC
+  recurringOnTuesday, // Column AD
+  recurringOnWednesday, // Column AE
+  recurringOnThursday, // Column AF
+  recurringOnFriday, // Column AG
 ];
 
 // Get rules from DataValidationRules sheet
@@ -68,17 +68,17 @@ function onEdit(e) {
     return;
   }
 
-  // ── Handle Main Column E edit ────────────────────────────────
+  // ── Handle Main Column H edit ────────────────────────────────
   if (sheetName !== MAIN_SHEET) return;
-  // Column E is the 5th column
-  if (range.getColumn() !== 5) return;
+  // Column H is the 8th column
+  if (range.getColumn() !== 8) return;
   // Skip the header row
   if (range.getRow() <= 1) return;
 
 
   const selectedCategory = e.value;
-  // Column F is the 6th column
-  var targetCell = edited_sheet.getRange(range.getRow(), 6);
+  // Column I is the 9th column
+  var targetCell = edited_sheet.getRange(range.getRow(), 9);
 
   // Clear previous value & validation whenever the category changes
   targetCell.clearContent();
@@ -226,18 +226,6 @@ function getSettingsMode(ss) {
 }
 
 /**
- * Installed onEdit trigger.
- *
- * When a user picks a Category (e.g. "Class", "Event") in Column A of
- * the "Main" sheet, this function:
- *   1. Reads the current mode from the "Settings" sheet.
- *   2. Builds a hash map from the "Data" sheet.
- *   3. Looks up the matching Types and applies them as a dropdown
- *      in Column B of the same row.
- */
-
-
-/**
  * Re-applies Type dropdowns on every populated row of Main
  * after a Settings change.
  *
@@ -261,13 +249,13 @@ function refreshAllTypeDropdowns(ss, mainSheetName, dataSheetName) {
   var categoryMap = buildCategoryMap(dataSheet);
 
   // Read columns E & F in one batch (rows 2 → lastRow)
-  var categories = mainSheet.getRange(2, 5, lastRow - 1, 1).getValues();
-  var types = mainSheet.getRange(2, 6, lastRow - 1, 1).getValues();
+  var categories = mainSheet.getRange(2, 8, lastRow - 1, 1).getValues();
+  var types = mainSheet.getRange(2, 9, lastRow - 1, 1).getValues();
 
   for (var i = 0; i < categories.length; i++) {
     var category = String(categories[i][0]).trim();
     var row = i + 2; // 1-indexed, skip header
-    var typeCell = mainSheet.getRange(row, 6);
+    var typeCell = mainSheet.getRange(row, 9);
 
     if (!category) {
       // No category → clear any leftover validation/value
