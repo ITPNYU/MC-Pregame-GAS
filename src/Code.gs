@@ -12,7 +12,7 @@ function onOpen() {
 }
 
 function isDevTeam(email) {
-  const devTeam = ["bs4396@nyu.edu", "nnp278@nyu.edu", "rh3555@nyu.edu"];
+  const devTeam = ["ksb8403@nyu.edu", "bs4396@nyu.edu", "nnp278@nyu.edu", "rh3555@nyu.edu"];
   return devTeam.includes(email);
 }
 
@@ -31,7 +31,7 @@ function createPregameMenu(ui) {
       .addItem("Validate", "validateAllForProduction")
       .addItem("Write all rows with category: Class to Draft calendars", "writeClassesToDraft")
       .addItem("Write all rows with category: Event to Draft calendars", "writeEventsToDraft")
-      .addItem("Write all Draft calendars content to Production calendars", "writeEventsToProduction")
+      .addItem("Write all rows to Production calendars", "writeAllRowsToProduction")
       .addItem("Delete all category: Class events from Draft calendars", "deleteClassesFromDraft")
       .addItem("Delete all category: Event events from Draft calendars", "deleteEventsFromDraft")
       .addItem("Delete all Draft calendars content", "deleteAllFromDraft")
@@ -44,7 +44,7 @@ function createPregameMenu(ui) {
       .addItem("Validate", "validateAllForPregame")
       .addItem("Write all rows with category: Class to Pregame calendars", "writeClassesToPregame")
       .addItem("Write all rows with category: Event to Pregame calendars", "writeEventsToPregame")
-      .addItem("Write all Pregame calendars content to Draft calendars", "writeEventsToDraft")
+      .addItem("Write all rows to Draft calendars", "writeAllRowsToDraft")
       .addItem("Delete all Category: Class events from Pregame calendars", "deleteClassesFromPregame")
       .addItem("Delete all Category: Event events from Pregame calendars", "deleteEventsFromPregame")
       .addItem("Delete all Pregame calendars content", "deleteAllFromPregame")
@@ -81,7 +81,11 @@ function writeEventsToDraft() {
   pushToCalendarByCategory(true, DRAFT_CALENDAR_IDS_SHEET_NAME, "Event");
 }
 
-function writeEventsToProduction() {
+function writeAllRowsToDraft() {
+  pushToCalendarByCategory(false, DRAFT_CALENDAR_IDS_SHEET_NAME, null);
+}
+
+function writeAllRowsToProduction() {
   pushToCalendarByCategory(false, PRODUCTION_CALENDAR_IDS_SHEET_NAME, null);
 }
 
@@ -137,6 +141,9 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
 
   var reservationContacts = getColumnValues(bookingInfoSheet, "A2:A");
   var requesterEmails = getColumnValues(bookingInfoSheet, "B2:B");
+  var secondaryContacts = getColumnValues(bookingInfoSheet, "F2:F");
+  var secondaryContactEmails = getColumnValues(bookingInfoSheet, "G2:G");
+
   var eventTitles = getColumnValues(bookingInfoSheet, "J2:J");
   var eventRooms = getConcatenatedColumnData(bookingInfoSheet, "K", "AA");
   var departments = getColumnValues(bookingInfoSheet, "D2:D");
@@ -258,7 +265,10 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "none" +
       "<br/>" +
       "• Secondary Contact Name: " +
-      "none" +
+      (secondaryContacts[i] ? secondaryContacts[i] : "none") +
+      "<br/>" +
+      "• Secondary Contact Email: " +
+      (secondaryContactEmails[i] ? secondaryContactEmails[i] : "none") +
       "<br/>" +
       "• Sponsor Name: " +
       "none" +
@@ -299,9 +309,9 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "• Staffing: " +
       ([
-        audioLabStaffNeeded[i] ? "Audio Lab" : "",
-        garageLightingNeeded[i] ? "Garage Lighting" : "",
-        garageAudioNeeded[i] ? "Garage Audio" : "",
+        audioLabStaffNeeded[i] ? audioLabStaffNeeded[i] : "",
+        garageLightingNeeded[i] ? garageLightingNeeded[i] : "",
+        garageAudioNeeded[i] ? garageAudioNeeded[i] : "",
       ]
         .filter(Boolean)
         .join(", ") || "none") +
