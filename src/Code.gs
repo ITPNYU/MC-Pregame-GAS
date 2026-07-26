@@ -150,6 +150,7 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
   var reservationCategories = getColumnValues(bookingInfoSheet, "H2:H"); // Column H for Reservation Category
   var weeklyValues = getConcatenatedColumnData(bookingInfoSheet, "AC", "AG");
   var expectedAttendance = getColumnValues(bookingInfoSheet, "AL2:AL");
+  var attendeeAffiliations = getColumnValues(bookingInfoSheet, "AM2:AM");
 
   var garageLightingNeeded = getColumnValues(bookingInfoSheet, "AN2:AN");
   var garageAudioNeeded = getColumnValues(bookingInfoSheet, "AO2:AO");
@@ -296,7 +297,7 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       (expectedAttendance[i] ? expectedAttendance[i] : "none") +
       "<br/>" +
       "• Attendee Affiliation: " +
-      "none" +
+      (attendeeAffiliations[i] ? attendeeAffiliations[i] : "none") +
       "<br/>" +
       "• Origin: Pregame" +
       "<br/>" +
@@ -309,9 +310,9 @@ function createCalendarEventsByCategory(roomInfoSheet, bookingInfoSheet, eventsW
       "<br/>" +
       "• Staffing: " +
       ([
-        audioLabStaffNeeded[i] ? audioLabStaffNeeded[i] : "",
-        garageLightingNeeded[i] ? garageLightingNeeded[i] : "",
-        garageAudioNeeded[i] ? garageAudioNeeded[i] : "",
+        audioLabStaffNeeded[i] ? "(230) " + audioLabStaffNeeded[i] : "",
+        garageLightingNeeded[i] ? "(103) " + garageLightingNeeded[i] : "",
+        garageAudioNeeded[i] ? "(103) " + garageAudioNeeded[i] : "",
       ]
         .filter(Boolean)
         .join(", ") || "none") +
